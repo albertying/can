@@ -41,9 +41,10 @@ inline std::optional<Frame> parse_line(std::string_view line) {
     f.interface = std::string(interface);
 
     const std::string_view id_str = mid.substr(sp + 1);
-    f.id = static_cast<uint32_t>(std::strtoul(std::string(id_str).c_str(), nullptr, 16));
-    f.extended = f.id > 0x7FFu;
-    f.id &= f.extended ? 0x1FFFFFFFu : 0x7FFu;
+    const uint32_t raw_id = static_cast<uint32_t>(
+        std::strtoul(std::string(id_str).c_str(), nullptr, 16));
+    f.extended = raw_id > 0x7FFu;
+    f.id = f.extended ? (raw_id & 0x1FFFFFFFu) : raw_id;
 
     std::string_view p = line.substr(hash + 1);
     if (!p.empty() && (p.front() == 'R' || p.front() == 'r')) {
