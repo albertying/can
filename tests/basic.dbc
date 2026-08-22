@@ -1,0 +1,31 @@
+VERSION ""
+NS_:
+BS_:
+BU_: ECU
+
+BO_ 256 LE_Unsigned: 8 ECU
+ SG_ U16 : 0|16@1+ (1,0) [0|0] "" ECU
+ SG_ U8 : 16|8@1+ (1,0) [0|0] "" ECU
+
+BO_ 257 LE_Signed: 8 ECU
+ SG_ S16 : 0|16@1- (1,0) [0|0] "" ECU
+ SG_ S8 : 16|8@1- (1,0) [0|0] "" ECU
+
+BO_ 258 BE_Unsigned: 8 ECU
+ SG_ U16 : 7|16@0+ (1,0) [0|0] "" ECU
+ SG_ U8 : 23|8@0+ (1,0) [0|0] "" ECU
+
+BO_ 259 BE_Signed: 8 ECU
+ SG_ S16 : 7|16@0- (1,0) [0|0] "" ECU
+ SG_ S8 : 23|8@0- (1,0) [0|0] "" ECU
+
+BO_ 260 ScaleOffset: 8 ECU
+ SG_ RPM : 0|16@1+ (0.1,0) [0|0] "rpm" ECU
+ SG_ Temp : 16|8@1- (1,-40) [0|0] "C" ECU
+
+BO_ 261 Boundary: 8 ECU
+ SG_ Bit1 : 0|1@1+ (1,0) [0|0] "" ECU
+ SG_ Full32 : 8|32@1+ (1,0) [0|0] "" ECU
+
+BO_ 2566914304 Extended: 8 ECU
+ SG_ Val : 0|16@1+ (1,0) [0|0] "" ECU

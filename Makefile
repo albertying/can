@@ -6,7 +6,13 @@ HDRS := bits.hpp dbc.hpp decode.hpp candump.hpp
 tool: main.cpp $(HDRS)
 	$(CXX) $(CXXFLAGS) -o $@ main.cpp
 
+test: tool
+	@sh tests/run.sh
+
+bench: tool
+	@bash tests/bench.sh
+
 clean:
 	rm -f tool
 
-.PHONY: clean
+.PHONY: test bench clean

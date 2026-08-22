@@ -1,0 +1,9 @@
+1,Selector,0
+1,Always,63
+1,GroupA,1000
+2,Selector,1
+2,Always,63
+2,GroupB,-2
+3,Selector,2
+3,Always,63
+3,GroupC,50

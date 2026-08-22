@@ -1,0 +1,11 @@
+VERSION ""
+NS_:
+BS_:
+BU_: ECU
+
+BO_ 512 MuxMsg: 8 ECU
+ SG_ Selector M : 0|2@1+ (1,0) [0|0] "" ECU
+ SG_ Always : 2|6@1+ (1,0) [0|0] "" ECU
+ SG_ GroupA m0 : 8|16@1+ (1,0) [0|0] "" ECU
+ SG_ GroupB m1 : 8|16@1- (1,0) [0|0] "" ECU
+ SG_ GroupC m2 : 8|8@1+ (0.5,0) [0|0] "" ECU
