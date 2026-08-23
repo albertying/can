@@ -24,9 +24,8 @@ void list(const std::map<uint64_t, dbc::Body>& db) {
 
 void run(const std::map<uint64_t, dbc::Body>& db, std::istream& in) {
     std::string line;
-    size_t unknown = 0, unparsed = 0, line_num = 0;
+    size_t unknown = 0, unparsed = 0;
     while (std::getline(in, line)) {
-        ++line_num;
         if (line.empty()) continue;
         const auto frame = can::parse_line(line);
         if (!frame) {
@@ -40,8 +39,8 @@ void run(const std::map<uint64_t, dbc::Body>& db, std::istream& in) {
             continue;
         }
         for (const auto& d : can::decode(it->second, frame->data, frame->length)) {
-            std::cout << std::format("{},{},{:g}\n", line_num, d.signal->name,
-                                     d.value);
+            std::cout << std::format("{:.6f},{},{:g}\n", frame->timestamp,
+                                     d.signal->name, d.value);
         }
     }
     if (unknown || unparsed)
