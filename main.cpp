@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <unordered_set>
 
 #include "candump.hpp"
 #include "dbc.hpp"
@@ -22,7 +23,8 @@ void list(const std::map<uint64_t, dbc::Body>& db) {
     }
 }
 
-void run(const std::map<uint64_t, dbc::Body>& db, std::istream& in) {
+void run(const std::map<uint64_t, dbc::Body>& db, std::istream& in,
+         const std::unordered_set<std::string>& filter) {
     std::string line;
     size_t unknown = 0, unparsed = 0;
     while (std::getline(in, line)) {
@@ -39,6 +41,7 @@ void run(const std::map<uint64_t, dbc::Body>& db, std::istream& in) {
             continue;
         }
         for (const auto& d : can::decode(it->second, frame->data, frame->length)) {
+            if (!filter.empty() && !filter.count(d.signal->name)) continue;
             std::cout << std::format("{:.6f},{},{:g}\n", frame->timestamp,
                                      d.signal->name, d.value);
         }
@@ -51,25 +54,54 @@ void run(const std::map<uint64_t, dbc::Body>& db, std::istream& in) {
 } // namespace
 
 int main(int argc, char** argv) {
-    if (argc < 2 || argc > 3) {
-        std::cerr << std::format("usage: {} <file.dbc> [candump.log|-]\n", argv[0]);
+    std::unordered_set<std::string> filter;
+    std::string log_path;
+    std::string dbc_path;
+
+    // parse args: tool <dbc> [log] [-s sig1,sig2,...]
+    int i = 1;
+    for (; i < argc; ++i) {
+        std::string_view arg = argv[i];
+        if (arg == "-s") {
+            if (++i >= argc) {
+                std::cerr << "error: -s requires an argument\n";
+                return 2;
+            }
+            std::string sigs = argv[i];
+            size_t pos = 0;
+            while (pos < sigs.size()) {
+                const size_t comma = sigs.find(',', pos);
+                const size_t end = (comma == std::string::npos) ? sigs.size() : comma;
+                filter.insert(sigs.substr(pos, end - pos));
+                pos = (comma == std::string::npos) ? sigs.size() : comma + 1;
+            }
+        } else if (dbc_path.empty()) {
+            dbc_path = std::string(arg);
+        } else {
+            log_path = std::string(arg);
+        }
+    }
+
+    if (dbc_path.empty()) {
+        std::cerr << std::format("usage: {} <file.dbc> [candump.log|-] [-s sig,...]\n",
+                                 argv[0]);
         return 2;
     }
+
     try {
-        const auto db = dbc::parse(argv[1]);
-        if (argc == 2) {
+        const auto db = dbc::parse(dbc_path);
+        if (log_path.empty()) {
             list(db);
             return 0;
         }
 
-        std::string log_path = argv[2];
         if (log_path == "-") {
-            run(db, std::cin);
+            run(db, std::cin, filter);
             return 0;
         }
         std::ifstream log(log_path);
         if (!log) throw std::runtime_error("can't open " + log_path);
-        run(db, log);
+        run(db, log, filter);
     } catch (const std::exception& e) {
         std::cerr << std::format("error: {}\n", e.what());
         return 1;
